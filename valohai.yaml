@@ -2,7 +2,9 @@
     name: Test model
     image: pytorch/pytorch:1.5.1-cuda10.1-cudnn7-runtime
     command:
-    - ls
+    - pip install -r requirements-optional.txt
+    - pip install -r requirements.txt
+    - gdown --id 1GS7urVv4COfjZrG8cGyjLfbka9apdTeQ
 
 - pipeline:
     name: test
