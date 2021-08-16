@@ -1,40 +1,37 @@
 - step:
-  name: train-model
-  image: tensorflow/tensorflow:2.4.1
-  command:
-    - pip install -r requirements.txt
-    - python ./train.py {parameters}
-  parameters:
-    - name: epoch
-      default: 5
+    name: Train model
+    image: tensorflow/tensorflow:2.4.1
+    command:
+    - print "{parameters}"
+    - python train.py {parameters}
+    parameters:
+    - name: user-id
+      default: 345345
       multiple-separator: ','
       optional: false
       type: integer
-  inputs:
-    - name: mnist
-      default: s3://onboard-sample/tf-sample/mnist.npz
-      optional: false
 
-- endpoint:
-    name: digits
-    description: predict digits from image inputs
-    image: tiangolo/uvicorn-gunicorn-fastapi:python3.7
-    server-command: uvicorn predict:app --host 0.0.0.0 --port 8000
-    files:
-        - name: model
-          description: Model output file from TensorFlow
-          path: model.h5
+- step:
+    name: Test model
+    image: tensorflow/tensorflow:2.4.1
+    command:
+    - print "{parameters}"
+    - python train.py {parameters}
+    parameters:
+    - name: user-id
+      default: 3
+      multiple-separator: ','
+      optional: false
+      type: integer
 
 - pipeline:
-    name: Train and deploy
+    name: Parameter to parameter
     nodes:
-      - name: train-node
-        type: execution
-        step: train-model
-      - name: deploy-node
-        type: deployment
-        deployment: mydeployment
-        endpoints:
-          - digits
+    - name: train-model
+      step: Train model
+      type: execution
+    - name: test-model
+      step: Test model
+      type: execution
     edges:
-      - [train-node.output.model.h5, deploy-node.file.digits.model]
+    - [train-model.parameter.user-id, test-model.parameter.user-id]
