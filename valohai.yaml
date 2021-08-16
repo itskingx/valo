@@ -1,19 +1,39 @@
 - step:
-  name: test
+  name: train-model
   image: pytorch/pytorch:1.5.1-cuda10.1-cudnn7-runtime
   command:
-    - pip install gdown
+    - ls -al
+  parameters:
+    - name: epoch
+      default: 5
+      multiple-separator: ','
+      optional: false
+      type: integer
   inputs:
     - name: mnist
       default: s3://onboard-sample/tf-sample/mnist.npz
       optional: false
-      
+
+- endpoint:
+    name: digits
+    description: predict digits from image inputs
+    image: tiangolo/uvicorn-gunicorn-fastapi:python3.7
+    server-command: uvicorn predict:app --host 0.0.0.0 --port 8000
+    files:
+        - name: model
+          description: Model output file from TensorFlow
+          path: model.h5
+
 - pipeline:
     name: Train and deploy
     nodes:
-      - name: test
+      - name: train-node
         type: execution
-        step: test
-
+        step: train-model
+      - name: deploy-node
+        type: deployment
+        deployment: mydeployment
+        endpoints:
+          - digits
     edges:
       - [train-node.output.model.h5, deploy-node.file.digits.model]
