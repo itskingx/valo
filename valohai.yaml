@@ -16,4 +16,4 @@
         step: test
 
     edges:
-      - [test.output]
+      - [train-node.output.model.h5, deploy-node.file.digits.model]
