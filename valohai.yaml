@@ -1,0 +1,16 @@
+- step:
+  name: test
+  image: pytorch/pytorch:1.5.1-cuda10.1-cudnn7-runtime
+  command:
+    - pip install gdown
+  inputs:
+    - name: mnist
+      default: s3://onboard-sample/tf-sample/mnist.npz
+      optional: false
+      
+- pipeline:
+    name: Train and deploy
+    nodes:
+      - name: test
+        type: execution
+        step: test
