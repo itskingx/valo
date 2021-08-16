@@ -1,35 +1,14 @@
 - step:
-    name: Train model
-    image: tensorflow/tensorflow:2.4.1
-    command:
-    - print "{parameters}"
-    - python train.py {parameters}
-    parameters:
-    - name: user-id
-      default: 345345
-      multiple-separator: ','
-      optional: false
-      type: integer
-
-- step:
     name: Test model
     image: tensorflow/tensorflow:2.4.1
     command:
     - print "{parameters}"
     - python train.py {parameters}
-    parameters:
-    - name: user-id
-      default: 3
-      multiple-separator: ','
-      optional: false
-      type: integer
 
 - pipeline:
     name: Parameter to parameter
     nodes:
-    - name: train-model
-      step: Train model
-      type: execution
+
     - name: test-model
       step: Test model
       type: execution
